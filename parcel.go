@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 )
 
 type ParcelStore struct {
@@ -44,7 +45,7 @@ func (s ParcelStore) Get(number int) (Parcel, error) {
 	err := row.Scan(&p.Number, &p.Client, &p.Status, &p.Address, &p.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return p, fmt.Errorf("посылка с номером %d не найдена", number)
+			return Parcel{}, fmt.Errorf("посылка с номером %d не найдена", number)
 		}
 		return p, err
 	}
@@ -72,6 +73,10 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 			return nil, fmt.Errorf("ошибка сканирования данных: %v", err)
 		}
 		res = append(res, p)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println(err)
 	}
 
 	return res, nil
